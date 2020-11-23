@@ -61,7 +61,7 @@ class TestCaseKeywords:
     variable_binds = 'variable_binds'
     generator_binds = 'generator_binds'
     validators = 'validators'
-    options = 'options'
+    options = 'curl_option_'
     global_env = 'global_env'
     absolute_urls = 'absolute-url'
 

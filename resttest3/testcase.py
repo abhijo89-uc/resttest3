@@ -280,6 +280,7 @@ class TestCase:
         self.__url = None
         self.__body = None
         self.__config = config if config else TestCaseConfig()
+        self.__curl_option_dict = {}
         self.__auth_username = None
         self.__auth_password = None
         self.__delay = 0
@@ -298,7 +299,6 @@ class TestCase:
         self._should_stop_on_failure = False
         self._test_run_delay = 0
         self._auth_type = AuthType.BASIC
-        self._curl_options = None
         self.__variable_binds_dict = variable_binds if variable_binds else {}
         self.__generator_binds_dict = {}
         self.__extract_binds_dict = extract_binds if extract_binds else {}
@@ -323,6 +323,17 @@ class TestCase:
         if config_object:
             self.variable_binds.update(config_object.variable_binds)
             self.generator_binds.update(config_object.generators)
+
+    @property
+    def curl_options(self):
+        return self.__curl_option_dict
+
+    @curl_options.setter
+    def curl_options(self, value_dict: Dict):
+        if None in value_dict.values():
+            raise ValueError("Curl value should not be empty!")
+        else:
+            self.__curl_option_dict.update(value_dict)
 
     @property
     def auth_username(self):
@@ -559,6 +570,8 @@ class TestCase:
                 self.body = value
             elif keyword == TestCaseKeywords.absolute_urls:
                 self.__abs_url = Parser.safe_to_bool(value)
+            elif keyword.startswith(TestCaseKeywords.options):
+                self.curl_options = {keyword: value}
 
         expected_status = testcase_dict.get(TestCaseKeywords.expected_status, [])
         if expected_status:
@@ -629,6 +642,11 @@ class TestCase:
                 curl_handler.setopt(pycurl.FOLLOWLOCATION, 1)  # Support for HTTP 301
         else:
             curl_handler = pycurl.Curl()
+
+        # Setting custom curl Options
+        if self.curl_options:
+            for key, value in self.curl_options.items():
+                curl_handler.setopt(getattr(curl_handler, key), value)
 
         body_byte, header_byte = self.__default_curl_config(curl_handler, timeout)
         if self.config.timeout:
