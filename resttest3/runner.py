@@ -118,7 +118,7 @@ class Runner:
                     context_list.append(testcase_object)
         end_time = datetime.datetime.now()
         if self.__args.html:
-            with open(current_module_path.parent.joinpath('reports/template/report_template.html').absolute()) as f:
+            with open(str(current_module_path.parent.joinpath('reports/template/report_template.html').absolute())) as f:
                 html = f.read()
                 from resttest3.reports.templite import Templite
                 _engine = Templite(html)
