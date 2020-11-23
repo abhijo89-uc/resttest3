@@ -336,6 +336,14 @@ class TestCase:
             self.__curl_option_dict.update(value_dict)
 
     @property
+    def stop_on_failure(self):
+        return self._should_stop_on_failure
+
+    @stop_on_failure.setter
+    def stop_on_failure(self, val: bool):
+        self._should_stop_on_failure = bool(val)
+
+    @property
     def auth_username(self):
         return self.__auth_username
 
@@ -572,6 +580,9 @@ class TestCase:
                 self.__abs_url = Parser.safe_to_bool(value)
             elif keyword.startswith(TestCaseKeywords.options):
                 self.curl_options = {keyword: value}
+            elif keyword == TestCaseKeywords.stop_on_failure:
+                self.stop_on_failure = value
+
 
         expected_status = testcase_dict.get(TestCaseKeywords.expected_status, [])
         if expected_status:

@@ -93,6 +93,9 @@ class Runner:
         stat_time = datetime.datetime.now()
         with alive_bar(total_testcase_count) as bar:
             for test_group, test_group_object in testcase_set.test_group_list_dict.items():
+                should_break = any(
+                    [testcase_object.stop_on_failure for testcase_object in test_group_object.testcase_list]
+                )
                 for testcase_object in test_group_object.testcase_list:
                     bar()
                     testcase_object.run()
@@ -110,6 +113,8 @@ class Runner:
                             failure_dict[test_group] = (count + 1, case_list)
                         except KeyError:
                             failure_dict[test_group] = (1, [testcase_object])
+                        if should_break:  # Exit the run where we find stop on fail
+                            break
                     context_list.append(testcase_object)
         end_time = datetime.datetime.now()
         if self.__args.html:
