@@ -91,6 +91,7 @@ class Runner:
         context_list = []
         total_testcase_count = len([y for x, y in testcase_set.test_group_list_dict.items() for c in y.testcase_list])
         stat_time = datetime.datetime.now()
+
         with alive_bar(total_testcase_count) as bar:
             for test_group, test_group_object in testcase_set.test_group_list_dict.items():
                 should_break = any(
@@ -145,6 +146,8 @@ class Runner:
                 print('\t%s %s. Case Name: %s %s' % (self.FAIL, index + 1, testcase.name, self.NOCOL))
                 for f in testcase.failures:
                     print('\t\t%s %s %s' % (self.FAIL, f, self.NOCOL))
+                if testcase.stop_on_failure:
+                    print('\t\t%s STOPPED: stop_on_failure set as True %s' % (self.FAIL, self.NOCOL))
 
         for group_name, case_list_tuple in success_dict.items():
             print("%sGroup Name: %s %s" % (self.SUCCESS, group_name, self.NOCOL))
@@ -152,12 +155,12 @@ class Runner:
             print('%sTotal testcase success: %s %s' % (self.SUCCESS, count, self.NOCOL))
             for index, testcase in enumerate(courtcase_list):
                 print('\t%s %s. Case Name: %s %s' % (self.SUCCESS, index+1, testcase.name, self.NOCOL))
-        return 0
+        return len(failure_dict)
 
 
 def main():
     r = Runner()
-    r.main()
+    return r.main()
 
 
 if __name__ == '__main__':
